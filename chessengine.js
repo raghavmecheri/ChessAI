@@ -2,6 +2,7 @@
 
 var board = null
 var game = new Chess()
+var system = new ChessAI(game)
 
 function onDragStart (source, piece, position, orientation) {
   // do not pick up pieces if the game is over
@@ -12,16 +13,8 @@ function onDragStart (source, piece, position, orientation) {
 }
 
 function makeRandomMove () {
-  var possibleMoves = game.moves()
-
-  // game over
-  if (possibleMoves.length === 0) {
-	  alert("Game over!");
-	  return;
-  }
-
-  var randomIdx = Math.floor(Math.random() * possibleMoves.length)
-  game.move(possibleMoves[randomIdx])
+  var move = system.getMiniMaxMove();
+  game.move(move);
   board.position(game.fen())
 }
 
