@@ -20,7 +20,27 @@ class ChessAI {
 		this.engine = game;
 	}
 
-	getRandomMove() {
+	getMove(option:number) {
+		switch (option) {
+			case 0:
+				return this.getRandomMove();
+				break;
+			case 1:
+				return this.getGreedyMove();
+				break;
+			case 2:
+				return this.getMiniMaxMove();
+				break;
+			default:
+				return this.getRandomMove();
+				break;
+		}
+	}
+
+
+	// Begin helper methods
+	
+	private getRandomMove() {
 		let possibleMoves:[] = this.engine.moves()
 		// game over
 		if (possibleMoves.length === 0) {
@@ -32,7 +52,7 @@ class ChessAI {
 		return move;
 	}
 
-	getGreedyMove() {
+	private getGreedyMove() {
 		let possibleMoves:[] = this.engine.moves()
 
 		if (possibleMoves.length === 0) {
@@ -63,7 +83,7 @@ class ChessAI {
 		return possibleMoves[moveIndex];
 	}
 
-	getMiniMaxMove() {
+	private getMiniMaxMove() {
 		let possibleMoves:[] = this.engine.moves()
 		if (possibleMoves.length === 0) {
 			alert("Game over!");
@@ -82,7 +102,7 @@ class ChessAI {
 	    for(var i:number = 0; i < possibleMoves.length; i++) {
 	        var nextMove = possibleMoves[i];
 	        game.move(nextMove);
-	        var value = this.minimax(depth-1, game, !isMaximizingPlayer);
+	        var value = this.minimax(depth-1, game, -Infinity, Infinity, !isMaximizingPlayer);
 	        game.undo();
 	        if(value >= bestMove) {
 	            bestMove = value;
@@ -92,7 +112,7 @@ class ChessAI {
 	    return bestIndexFound;
 	};
 
-	private minimax (depth, game, isMaximizingPlayer) {
+	private minimax (depth, game, alpha, beta, isMaximizingPlayer) {
 	    if (depth === 0) {
 	        return -this.computeScore(game.fen());
 	    }
@@ -103,7 +123,13 @@ class ChessAI {
 	        var bestMove = -Infinity;
 	        for (var i = 0; i < possibleMoves.length; i++) {
 	            game.move(possibleMoves[i]);
-	            bestMove = Math.max(bestMove, this.minimax(depth -1, game, !isMaximizingPlayer));
+	            bestMove = Math.max(bestMove, this.minimax(depth -1, game, alpha, beta, !isMaximizingPlayer));
+
+	            alpha = Math.max(alpha, bestMove);
+	            if (beta <= alpha) {
+	                return bestMove;
+	            }
+
 	            game.undo();
 	        }
 	        return bestMove;
@@ -111,7 +137,12 @@ class ChessAI {
 	        var bestMove = Infinity;
 	        for (var i = 0; i < possibleMoves.length; i++) {
 	            game.move(possibleMoves[i]);
-	            bestMove = Math.min(bestMove, this.minimax(depth - 1, game, !isMaximizingPlayer));
+	            bestMove = Math.min(bestMove, this.minimax(depth - 1, game, alpha, beta, !isMaximizingPlayer));
+
+	            beta = Math.min(beta, bestMove);
+	            if (beta <= alpha) {
+	                return bestMove;
+	            }
 	            game.undo();
 	        }
 	        return bestMove;

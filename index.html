@@ -26,8 +26,10 @@
 			  if (piece.search(/^b/) !== -1) return false
 			}
 
-			function makeRandomMove () {
-			  var move = system.getMiniMaxMove();
+			function makeCPUMove () {
+			  var option = document.getElementById("dropdown");
+			  var value = option[option.selectedIndex].value;
+			  var move = system.getMove(parseInt(value));
 			  game.move(move);
 			  board.position(game.fen())
 			}
@@ -44,7 +46,7 @@
 			  if (move === null) return 'snapback'
 
 			  // make random legal move for black
-			  window.setTimeout(makeRandomMove, 250)
+			  window.setTimeout(makeCPUMove, 250);
 			}
 
 			// update the board position after the piece snap
@@ -63,6 +65,13 @@
 
 			board = Chessboard("chessBoard", config)
 		</script>
+	</div>
+	<div>
+		<select id="dropdown">
+		  <option value="0">Random Moves</option>
+		  <option value="1">Greedy Moves</option>
+		  <option value="2">Alpha Beta Minimax D = 3</option>
+		</select>
 	</div>
 </body>
 </html>
