@@ -1,3 +1,5 @@
+declare const Chess:any;
+
 class ChessAI {
 	private engine;
 	private PAWN = 'p';
@@ -6,6 +8,8 @@ class ChessAI {
   	private ROOK = 'r';
   	private QUEEN = 'q';
   	private KING = 'k';
+  	// Hardcoded for now as the user is always white
+  	private COLOR  = 1;
 
   	private VALUES;
 
@@ -23,6 +27,29 @@ class ChessAI {
 		let randomIdx = Math.floor(Math.random() * possibleMoves.length)
 		let move = possibleMoves[randomIdx];
 		return move;
+	}
+
+	getGreedyMove() {
+		let possibleMoves:[] = this.engine.moves()
+		var targetValue:number = Infinity * this.COLOR;
+		var moveIndex:number = 0;
+		for(var i:number = 0; i < possibleMoves.length; i++) {
+			var temp = new Chess(this.engine.fen());
+			temp.move(possibleMoves[i]);
+			let moveValuation = this.computeScore(temp.fen());
+			if(this.COLOR == 1) {
+				if(moveValuation < targetValue) {
+					targetValue = moveValuation;
+					moveIndex = i;
+				}
+			} else {
+				if(moveValuation > targetValue) {
+					targetValue = moveValuation;
+					moveIndex = i;
+				}
+			}
+		}
+		return possibleMoves[moveIndex];
 	}
 
 	getMiniMaxMove() {

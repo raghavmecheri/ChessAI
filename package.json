@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/raghavmecheri/ChessAI#readme",
   "dependencies": {
+    "chess.js": "^0.10.2",
     "typescript": "^3.7.4"
   }
 }

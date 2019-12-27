@@ -27,7 +27,7 @@
 			}
 
 			function makeRandomMove () {
-			  var move = system.getMiniMaxMove();
+			  var move = system.getGreedyMove();
 			  game.move(move);
 			  board.position(game.fen())
 			}
