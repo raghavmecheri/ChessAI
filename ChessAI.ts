@@ -11,6 +11,9 @@ class ChessAI {
   	// Hardcoded for now as the user is always white
   	private COLOR  = 1;
 
+  	// Valus for Minimax
+  	private DEPTH = 2;
+
   	private VALUES;
 
 	constructor(game) {
@@ -31,10 +34,17 @@ class ChessAI {
 
 	getGreedyMove() {
 		let possibleMoves:[] = this.engine.moves()
+
+		if (possibleMoves.length === 0) {
+			alert("Game over!");
+			return;
+		}
+
 		var targetValue:number = Infinity * this.COLOR;
 		var moveIndex:number = 0;
+		var temp = new Chess(this.engine.fen());
 		for(var i:number = 0; i < possibleMoves.length; i++) {
-			var temp = new Chess(this.engine.fen());
+			
 			temp.move(possibleMoves[i]);
 			let moveValuation = this.computeScore(temp.fen());
 			if(this.COLOR == 1) {
@@ -48,40 +58,70 @@ class ChessAI {
 					moveIndex = i;
 				}
 			}
+			temp.undo();
 		}
 		return possibleMoves[moveIndex];
 	}
 
 	getMiniMaxMove() {
 		let possibleMoves:[] = this.engine.moves()
-
-		// game over
 		if (possibleMoves.length === 0) {
 			alert("Game over!");
 			return;
 		}
-
-		this.generateMiniMax();
-
-		let randomIdx = Math.floor(Math.random() * possibleMoves.length)
-		let move = possibleMoves[randomIdx];
-		return move;
+		let isMaximizing:boolean = (this.COLOR == 1);
+		let bestIndex:number = this.getMinimaxRoot(this.DEPTH, new Chess(this.engine.fen()), isMaximizing);
+		return possibleMoves[bestIndex];
 	}
 
-	private generateMiniMax() {
-		let moves: [] = this.engine.moves();
-		let fen:string = this.engine.fen();
-		
-		let score:number = this.computeScore(fen);
+	private getMinimaxRoot (depth, game, isMaximizingPlayer) {
+	    var possibleMoves:[] = game.moves();
+	    var bestMove = -Infinity;
+	    var bestIndexFound:number;
 
-		console.log(JSON.stringify(moves));
-		console.log(score);
-	}
+	    for(var i:number = 0; i < possibleMoves.length; i++) {
+	        var nextMove = possibleMoves[i];
+	        game.move(nextMove);
+	        var value = this.minimax(depth-1, game, !isMaximizingPlayer);
+	        game.undo();
+	        if(value >= bestMove) {
+	            bestMove = value;
+	            bestIndexFound = i;
+	        }
+	    }
+	    return bestIndexFound;
+	};
+
+	private minimax (depth, game, isMaximizingPlayer) {
+	    if (depth === 0) {
+	        return -this.computeScore(game.fen());
+	    }
+	    // console.log(`Calling minimax with depth: ${depth}`);
+	    var possibleMoves:[] = game.moves();
+
+	    if (isMaximizingPlayer) {
+	        var bestMove = -Infinity;
+	        for (var i = 0; i < possibleMoves.length; i++) {
+	            game.move(possibleMoves[i]);
+	            bestMove = Math.max(bestMove, this.minimax(depth -1, game, !isMaximizingPlayer));
+	            game.undo();
+	        }
+	        return bestMove;
+	    } else {
+	        var bestMove = Infinity;
+	        for (var i = 0; i < possibleMoves.length; i++) {
+	            game.move(possibleMoves[i]);
+	            bestMove = Math.min(bestMove, this.minimax(depth - 1, game, !isMaximizingPlayer));
+	            game.undo();
+	        }
+	        return bestMove;
+	    }
+	};
 
 	private computeScore(fen) {
 		var score:number = 0;
 		let ranks:string[] = fen.split("/");
-		console.log("Split ranks");
+		// console.log("Split ranks");
 		for(var i:number = 0; i < ranks.length; i++) {
 			let rank:string = ranks[i];
 			let rank_arr:string[] = rank.split("");
@@ -94,7 +134,7 @@ class ChessAI {
 					}
 					var value = multiplier * this.lookupMove(notation);
 					score += value;
-					console.log("Score is updated to: "+score);
+					// console.log("Score is updated to: "+score);
 				}
 			}
 		}
