@@ -11,10 +11,8 @@ class ChessAI {
   	// Hardcoded for now as the user is always white
   	private COLOR  = 1;
 
-  	// Valus for Minimax
+  	// Values for Minimax
   	private DEPTH = 2;
-
-  	private VALUES;
 
 	constructor(game) {
 		this.engine = game;
